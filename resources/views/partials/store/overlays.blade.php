@@ -27,14 +27,48 @@
     <nav class="store-drawer__nav">
         <ul>
             @foreach (config('store.nav', []) as $item)
-                <li>
-                    <a href="{{ url($item['url']) }}" data-close-drawer>{{ $item['label'] }}</a>
-                    @if (!empty($item['children']))
-                        <ul>
-                            @foreach ($item['children'] as $child)
-                                <li><a href="{{ url($child['url']) }}" data-close-drawer>{{ $child['label'] }}</a></li>
+                @php
+                    $children = $item['children'] ?? [];
+                    if (($item['key'] ?? null) === 'categories' && isset($storeCategories)) {
+                        $children = collect([['label' => 'جميع الأقسام', 'url' => '/products']])
+                            ->merge($storeCategories->map(fn ($c) => [
+                                'label' => $c->name,
+                                'url' => route('products.index', ['category' => $c->slug]),
+                            ]))
+                            ->all();
+                    }
+                    if (($item['key'] ?? null) === 'collections' && isset($storeCollections)) {
+                        $children = collect([['label' => 'جميع المجموعات', 'url' => '/products']])
+                            ->merge($storeCollections->map(fn ($c) => [
+                                'label' => $c->name,
+                                'url' => route('products.index', ['collection' => $c->slug]),
+                            ]))
+                            ->all();
+                    }
+                    $hasChildren = ! empty($children);
+                @endphp
+                <li class="store-drawer__item {{ $hasChildren ? 'has-children' : '' }}">
+                    @if ($hasChildren)
+                        <button
+                            type="button"
+                            class="store-drawer__toggle"
+                            data-drawer-accordion
+                            aria-expanded="false"
+                        >
+                            <span>{{ $item['label'] }}</span>
+                            <svg class="store-drawer__caret" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                        <ul class="store-drawer__submenu" hidden>
+                            @foreach ($children as $child)
+                                <li>
+                                    <a href="{{ url($child['url']) }}" data-close-drawer>{{ $child['label'] }}</a>
+                                </li>
                             @endforeach
                         </ul>
+                    @else
+                        <a href="{{ url($item['url']) }}" data-close-drawer>{{ $item['label'] }}</a>
                     @endif
                 </li>
             @endforeach
@@ -178,7 +212,11 @@
         action="{{ route('products.index') }}"
         method="get"
         data-suggest-url="{{ route('products.suggest') }}"
+        data-search-scope
     >
+        <input type="hidden" name="category" value="" data-search-context="category" disabled>
+        <input type="hidden" name="collection" value="" data-search-context="collection" disabled>
+        <input type="hidden" name="filter" value="" data-search-context="filter" disabled>
         <div class="store-search__bar">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.6"/>

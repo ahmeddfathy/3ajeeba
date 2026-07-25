@@ -101,8 +101,37 @@ class ProductController extends Controller
     {
         $q = trim((string) $request->query('q', ''));
         $currency = config('store.currency', 'ر.س');
+        $categorySlug = trim((string) $request->query('category', ''));
+        $collectionSlug = trim((string) $request->query('collection', ''));
+        $filter = trim((string) $request->query('filter', ''));
+
+        $categoryModel = $categorySlug
+            ? Category::active()->where('slug', $categorySlug)->first()
+            : null;
+        $collectionModel = $collectionSlug
+            ? Collection::active()->where('slug', $collectionSlug)->first()
+            : null;
+
+        $scoped = filled($categoryModel) || filled($collectionModel) || in_array($filter, ['featured', 'new'], true);
 
         $productsQuery = Product::active()->with('activeVariants')->reorder();
+
+        if (filled($categoryModel)) {
+            $productsQuery->whereHas('categories', fn ($q) => $q->where('categories.id', $categoryModel->id));
+        }
+
+        if (filled($collectionModel)) {
+            $productsQuery->whereHas('collections', fn ($q) => $q->where('collections.id', $collectionModel->id));
+        }
+
+        if ($filter === 'featured') {
+            $productsQuery->where('is_featured', true);
+        } elseif ($filter === 'new') {
+            $productsQuery->where(function ($builder) {
+                $builder->where('ribbon_label', 'like', '%جديد%')
+                    ->orWhere('created_at', '>=', now()->subDays(60));
+            });
+        }
 
         if ($q !== '') {
             $like = '%' . $q . '%';
@@ -127,50 +156,74 @@ class ProductController extends Controller
             'url' => route('products.show', $product),
         ]);
 
-        $categoriesQuery = Category::active();
-        $collectionsQuery = Collection::active();
+        $categories = collect();
+        $collections = collect();
 
-        if ($q !== '') {
-            $like = '%' . $q . '%';
-            $categoriesQuery->where(function ($builder) use ($like) {
-                $builder->where('name', 'like', $like)
-                    ->orWhere('slug', 'like', $like);
-            });
-            $collectionsQuery->where(function ($builder) use ($like) {
-                $builder->where('name', 'like', $like)
-                    ->orWhere('slug', 'like', $like);
-            });
+        // Outside a scoped catalog page, also suggest categories/collections.
+        if (! $scoped) {
+            $categoriesQuery = Category::active();
+            $collectionsQuery = Collection::active();
+
+            if ($q !== '') {
+                $like = '%' . $q . '%';
+                $categoriesQuery->where(function ($builder) use ($like) {
+                    $builder->where('name', 'like', $like)
+                        ->orWhere('slug', 'like', $like);
+                });
+                $collectionsQuery->where(function ($builder) use ($like) {
+                    $builder->where('name', 'like', $like)
+                        ->orWhere('slug', 'like', $like);
+                });
+            }
+
+            $categories = $categoriesQuery->take(4)->get()->map(fn (Category $category) => [
+                'type' => 'category',
+                'id' => $category->id,
+                'title' => $category->name,
+                'subtitle' => 'قسم',
+                'image' => $category->image_url,
+                'url' => route('products.index', ['category' => $category->slug]),
+            ]);
+
+            $collections = $collectionsQuery->take(4)->get()->map(fn (Collection $collection) => [
+                'type' => 'collection',
+                'id' => $collection->id,
+                'title' => $collection->name,
+                'subtitle' => 'مجموعة',
+                'image' => $collection->image_url,
+                'url' => route('products.index', ['collection' => $collection->slug]),
+            ]);
         }
 
-        $categories = $categoriesQuery->take(4)->get()->map(fn (Category $category) => [
-            'type' => 'category',
-            'id' => $category->id,
-            'title' => $category->name,
-            'subtitle' => 'قسم',
-            'image' => $category->image_url,
-            'url' => route('products.index', ['category' => $category->slug]),
-        ]);
+        $contextParams = array_filter([
+            'category' => $categorySlug ?: null,
+            'collection' => $collectionSlug ?: null,
+            'filter' => $filter ?: null,
+            'q' => $q !== '' ? $q : null,
+        ], fn ($value) => filled($value));
 
-        $collections = $collectionsQuery->take(4)->get()->map(fn (Collection $collection) => [
-            'type' => 'collection',
-            'id' => $collection->id,
-            'title' => $collection->name,
-            'subtitle' => 'مجموعة',
-            'image' => $collection->image_url,
-            'url' => route('products.index', ['collection' => $collection->slug]),
-        ]);
+        $scopeLabel = match (true) {
+            filled($collectionModel) => $collectionModel->name,
+            filled($categoryModel) => $categoryModel->name,
+            $filter === 'featured' => 'الأفضل',
+            $filter === 'new' => 'جديدنا',
+            default => null,
+        };
 
         return response()->json([
             'q' => $q,
+            'scoped' => $scoped,
+            'scope_label' => $scopeLabel,
             'products' => $products,
             'categories' => $categories,
             'collections' => $collections,
-            'see_all_url' => $q !== ''
-                ? route('products.index', ['q' => $q])
-                : route('products.index'),
-            'see_all_label' => $q !== ''
-                ? 'عرض كل النتائج لـ «' . Str::limit($q, 28) . '»'
-                : 'تصفح جميع المنتجات',
+            'see_all_url' => route('products.index', $contextParams),
+            'see_all_label' => match (true) {
+                $q !== '' && $scopeLabel => 'عرض نتائج «' . Str::limit($q, 20) . '» في ' . $scopeLabel,
+                $q !== '' => 'عرض كل النتائج لـ «' . Str::limit($q, 28) . '»',
+                $scopeLabel => 'تصفح منتجات ' . $scopeLabel,
+                default => 'تصفح جميع المنتجات',
+            },
         ]);
     }
 

@@ -103,17 +103,31 @@ function createStore() {
     let currentQpVariants = [];
     let currentQpSelectedColor = '';
     let currentQpSelectedSize = '';
+    let currentQpAction = 'cart'; // cart | whatsapp
 
     function closeQuickPick() {
         if (!quickPickModal) return;
         quickPickModal.hidden = true;
         currentQpCard = null;
         currentQpVariants = [];
+        currentQpAction = 'cart';
     }
 
-    function openQuickPick(card) {
+    function cardNeedsVariantPick(card) {
+        if (!card || card.classList.contains('store-pdp')) return false;
+        if (card.dataset.hasVariants !== '1') return false;
+        try {
+            const variants = JSON.parse(card.dataset.variants || '[]');
+            return Array.isArray(variants) && variants.length > 0;
+        } catch {
+            return false;
+        }
+    }
+
+    function openQuickPick(card, action = 'cart') {
         if (!quickPickModal || !card) return;
         currentQpCard = card;
+        currentQpAction = action === 'whatsapp' ? 'whatsapp' : 'cart';
         try {
             currentQpVariants = JSON.parse(card.dataset.variants || '[]');
         } catch (e) {
@@ -126,6 +140,7 @@ function createStore() {
             const image = card.dataset.productImage || '';
             if (image) {
                 qpImg.src = image;
+                qpImg.alt = card.dataset.productName || '';
                 qpImg.hidden = false;
             } else {
                 qpImg.removeAttribute('src');
@@ -138,13 +153,13 @@ function createStore() {
         const colors = [...new Set(currentQpVariants.map((v) => v.color).filter(Boolean))];
         const sizes = [...new Set(currentQpVariants.map((v) => v.size).filter(Boolean))];
 
-        currentQpSelectedColor = colors[0] || '';
-        currentQpSelectedSize = sizes[0] || '';
+        currentQpSelectedColor = '';
+        currentQpSelectedSize = '';
 
         if (colors.length && qpColorGroup && qpColors) {
             qpColorGroup.hidden = false;
             qpColors.innerHTML = colors.map((c) => `
-                <button type="button" class="store-quick-pick__btn ${c === currentQpSelectedColor ? 'is-selected' : ''}" data-qp-opt-color="${c}">${c}</button>
+                <button type="button" class="store-quick-pick__btn" data-qp-opt-color="${c}">${c}</button>
             `).join('');
         } else if (qpColorGroup) {
             qpColorGroup.hidden = true;
@@ -153,10 +168,17 @@ function createStore() {
         if (sizes.length && qpSizeGroup && qpSizes) {
             qpSizeGroup.hidden = false;
             qpSizes.innerHTML = sizes.map((s) => `
-                <button type="button" class="store-quick-pick__btn ${s === currentQpSelectedSize ? 'is-selected' : ''}" data-qp-opt-size="${s}">${s}</button>
+                <button type="button" class="store-quick-pick__btn" data-qp-opt-size="${s}">${s}</button>
             `).join('');
         } else if (qpSizeGroup) {
             qpSizeGroup.hidden = true;
+        }
+
+        const submitBtn = quickPickModal.querySelector('[data-qp-submit]');
+        if (submitBtn) {
+            submitBtn.textContent = currentQpAction === 'whatsapp'
+                ? 'تأكيد والطلب عبر واتساب'
+                : 'تأكيد وإضافة للسلة';
         }
 
         updateQpSelection();
@@ -211,15 +233,34 @@ function createStore() {
 
         if (e.target.closest('[data-qp-submit]')) {
             if (!currentQpCard || !currentQpVariants.length) return;
+
+            const colors = [...new Set(currentQpVariants.map((v) => v.color).filter(Boolean))];
+            const sizes = [...new Set(currentQpVariants.map((v) => v.size).filter(Boolean))];
+
+            if (colors.length && !currentQpSelectedColor) {
+                alert('اختاري اللون أولًا');
+                return;
+            }
+            if (sizes.length && !currentQpSelectedSize) {
+                alert('اختاري المقاس أولًا');
+                return;
+            }
+
             const match = currentQpVariants.find((v) => {
                 const matchColor = !v.color || v.color === currentQpSelectedColor;
                 const matchSize = !v.size || v.size === currentQpSelectedSize;
                 return matchColor && matchSize;
-            }) || currentQpVariants[0];
+            });
+
+            if (!match) {
+                alert('هذا المقاس غير متوفر بهذا اللون. اختاري تركيبة أخرى.');
+                return;
+            }
 
             const labelParts = [];
             if (match.size) labelParts.push(`المقاس: ${match.size}`);
             if (match.color) labelParts.push(`اللون: ${match.color}`);
+            const variantLabel = match.label || labelParts.join(' | ');
 
             const product = {
                 id: Number(currentQpCard.dataset.productId),
@@ -228,10 +269,22 @@ function createStore() {
                 image: currentQpCard.dataset.productImage || '',
                 quantity: 1,
                 variantId: match.id,
-                variantLabel: match.label || labelParts.join(' | '),
+                variantLabel,
                 size: match.size || '',
                 color: match.color || '',
             };
+
+            if (currentQpAction === 'whatsapp') {
+                const message = `${intro}1) ${product.name}\n${variantLabel ? `الفاريانت: ${variantLabel}\n` : ''}الكمية: 1\nالسعر: ${formatMoney(product.price)}\n\nالإجمالي: ${formatMoney(product.price)}\n`;
+                const url = buildWhatsAppUrl(message);
+                closeQuickPick();
+                if (!url) {
+                    alert('رقم واتساب غير مضبوط بعد. أضيفيه من إعدادات المتجر في لوحة التحكم.');
+                    return;
+                }
+                window.open(url, '_blank', 'noopener,noreferrer');
+                return;
+            }
 
             addToCart(product, { open: false });
             closeQuickPick();
@@ -600,6 +653,27 @@ function createStore() {
             return;
         }
 
+        const accordionBtn = event.target.closest('[data-drawer-accordion]');
+        if (accordionBtn) {
+            const item = accordionBtn.closest('.store-drawer__item');
+            const submenu = item?.querySelector('.store-drawer__submenu');
+            if (!submenu) return;
+
+            const willOpen = accordionBtn.getAttribute('aria-expanded') !== 'true';
+
+            // Close other open accordion sections in the same drawer.
+            const drawer = accordionBtn.closest('[data-drawer]');
+            drawer?.querySelectorAll('[data-drawer-accordion][aria-expanded="true"]').forEach((btn) => {
+                if (btn === accordionBtn) return;
+                btn.setAttribute('aria-expanded', 'false');
+                btn.closest('.store-drawer__item')?.querySelector('.store-drawer__submenu')?.setAttribute('hidden', '');
+            });
+
+            accordionBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+            submenu.hidden = !willOpen;
+            return;
+        }
+
         if (event.target === overlay) {
             closeDrawer();
             return;
@@ -615,6 +689,11 @@ function createStore() {
             const card = addBtn.closest('[data-product-card]');
             if (!card) return;
 
+            if (cardNeedsVariantPick(card)) {
+                openQuickPick(card, 'cart');
+                return;
+            }
+
             addToCart(productFromCard(card), { open: false });
             return;
         }
@@ -624,6 +703,12 @@ function createStore() {
             const card = waBuy.closest('[data-product-card]');
             if (!card) return;
             const isPdp = card.classList.contains('store-pdp');
+
+            if (cardNeedsVariantPick(card)) {
+                openQuickPick(card, 'whatsapp');
+                return;
+            }
+
             const product = productFromCard(card);
             if (!product) {
                 alert('اختاري المقاس واللون أولًا');
@@ -635,12 +720,12 @@ function createStore() {
                 const variantLine = product.variantLabel ? `الفاريانت: ${product.variantLabel}\n` : '';
                 message = `${intro}1) ${product.name}\n${variantLine}الكمية: ${product.quantity}\nالسعر: ${formatMoney(product.price)}\n\nالإجمالي: ${formatMoney(product.price * product.quantity)}\n`;
             } else {
-                message = `السلام عليكم، أريد الاستفسار عن المنتج التالي من عجيبة:\n\n${product.name}\nالسعر: ${formatMoney(product.price)}\n\n(المقاس واللون حسب التوفر)`;
+                message = `السلام عليكم، أريد الاستفسار عن المنتج التالي من عجيبة:\n\n${product.name}\nالسعر: ${formatMoney(product.price)}\n`;
             }
 
             const url = buildWhatsAppUrl(message);
             if (!url) {
-                alert('رقم واتساب غير مضبوط بعد. أضيفيه في STORE_WHATSAPP داخل ملف .env');
+                alert('رقم واتساب غير مضبوط بعد. أضيفيه من إعدادات المتجر في لوحة التحكم.');
                 return;
             }
             window.open(url, '_blank', 'noopener,noreferrer');
@@ -786,10 +871,14 @@ function createStore() {
     }
 
     function renderSuggestions(panel, data) {
+        const productLabel = data.scoped && data.scope_label
+            ? (data.q ? `منتجات في ${data.scope_label}` : `مقترحات من ${data.scope_label}`)
+            : (data.q ? 'منتجات' : 'مقترحات لك');
+
         const groups = [
             { key: 'categories', label: 'أقسام' },
             { key: 'collections', label: 'مجموعات' },
-            { key: 'products', label: data.q ? 'منتجات' : 'مقترحات لك' },
+            { key: 'products', label: productLabel },
         ];
 
         let html = '';
@@ -811,8 +900,8 @@ function createStore() {
 
         if (!flat.length) {
             html = data.q
-                ? `<p class="store-search__suggest-empty">لا توجد نتائج قريبة — جرّبي كلمة أقصر أو اسم قسم.</p>`
-                : `<p class="store-search__suggest-empty">ابدئي بالكتابة للبحث في المنتجات والأقسام.</p>`;
+                ? `<p class="store-search__suggest-empty">${data.scoped ? 'لا توجد نتائج داخل هذا القسم/المجموعة.' : 'لا توجد نتائج قريبة — جرّبي كلمة أقصر أو اسم قسم.'}</p>`
+                : `<p class="store-search__suggest-empty">${data.scoped ? 'ابدئي بالكتابة للبحث داخل الصفحة الحالية.' : 'ابدئي بالكتابة للبحث في المنتجات والأقسام.'}</p>`;
         }
 
         if (data.see_all_url) {
@@ -822,6 +911,61 @@ function createStore() {
         panel.innerHTML = html;
         panel.hidden = false;
         return flat;
+    }
+
+    function syncSearchContext(form) {
+        if (!form?.hasAttribute('data-search-scope')) return null;
+
+        const params = new URLSearchParams(window.location.search);
+        const keys = ['category', 'collection', 'filter'];
+        const context = {};
+
+        keys.forEach((key) => {
+            const input = form.querySelector(`[data-search-context="${key}"]`);
+            const value = params.get(key) || '';
+            context[key] = value;
+            if (!input) return;
+            input.value = value;
+            input.disabled = !value;
+        });
+
+        const input = form.querySelector('[data-search-input]');
+        const hint = form.querySelector('[data-search-hint]');
+        if (context.collection) {
+            if (input) input.placeholder = 'ابحثي داخل المجموعة...';
+            if (hint) hint.textContent = 'البحث هنا يقتصر على منتجات المجموعة الحالية.';
+        } else if (context.category) {
+            if (input) input.placeholder = 'ابحثي داخل القسم...';
+            if (hint) hint.textContent = 'البحث هنا يقتصر على منتجات القسم الحالي.';
+        } else if (context.filter) {
+            if (input) input.placeholder = 'ابحثي داخل النتائج الحالية...';
+            if (hint) hint.textContent = 'البحث هنا يقتصر على التصفية الحالية.';
+        } else {
+            if (input) input.placeholder = 'عباية، قسم، مجموعة...';
+            if (hint) hint.textContent = 'ابدئي بالكتابة — هنقترح منتجات وأقسام ومجموعات.';
+        }
+
+        return context;
+    }
+
+    function getSearchContext(form) {
+        const context = {};
+        const formData = new FormData(form);
+        ['category', 'collection', 'filter'].forEach((key) => {
+            const value = String(formData.get(key) || '').trim();
+            if (value) context[key] = value;
+        });
+
+        // Header search uses URL context when form fields are empty/disabled.
+        if (!Object.keys(context).length) {
+            const params = new URLSearchParams(window.location.search);
+            ['category', 'collection', 'filter'].forEach((key) => {
+                const value = params.get(key);
+                if (value) context[key] = value;
+            });
+        }
+
+        return context;
     }
 
     function initSearchSuggest(form) {
@@ -863,6 +1007,9 @@ function createStore() {
             try {
                 const url = new URL(suggestUrl, window.location.origin);
                 url.searchParams.set('q', q);
+                const context = getSearchContext(form);
+                Object.entries(context).forEach(([key, value]) => url.searchParams.set(key, value));
+
                 const res = await fetch(url.toString(), {
                     headers: { Accept: 'application/json' },
                     signal: lastController.signal,
@@ -924,6 +1071,8 @@ function createStore() {
 
     document.querySelector('[data-open-search]')?.addEventListener('click', () => {
         if (!searchDialog || typeof searchDialog.showModal !== 'function') return;
+        const form = searchDialog.querySelector('[data-search-form]');
+        syncSearchContext(form);
         searchDialog.showModal();
         window.setTimeout(() => {
             const input = searchDialog.querySelector('[data-search-input]');

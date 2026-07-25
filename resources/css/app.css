@@ -1527,6 +1527,8 @@
 .store-drawer {
     position: fixed;
     top: 0;
+    right: 0; /* دائماً من اليمين — حتى مع RTL */
+    left: auto;
     bottom: 0;
     z-index: 60;
     width: min(86vw, 320px);
@@ -1542,12 +1544,6 @@
 
 .store-drawer[hidden] {
     display: none !important;
-}
-
-.store-drawer--nav,
-.store-drawer--panel {
-    inset-inline-end: 0;
-    inset-inline-start: auto;
 }
 
 .store-drawer.is-open {
@@ -1700,43 +1696,68 @@
     -webkit-overflow-scrolling: touch;
 }
 
-.store-drawer__nav ul {
+.store-drawer__nav > ul {
     margin: 0;
-    padding: 0.85rem 1rem 1.75rem;
+    padding: 0.65rem 0.85rem 1.75rem;
     list-style: none;
 }
 
-.store-drawer__nav > ul > li + li {
-    margin-top: 0.2rem;
-    padding-top: 0.2rem;
-    border-top: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+.store-drawer__item + .store-drawer__item {
+    border-top: 1px solid color-mix(in srgb, var(--border) 65%, transparent);
 }
 
-.store-drawer__nav a {
-    display: block;
-    padding: 0.85rem 0.55rem;
+.store-drawer__nav a,
+.store-drawer__toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.95rem 0.55rem;
+    border: 0;
     border-radius: 12px;
+    background: transparent;
     color: var(--text);
     text-decoration: none;
+    font: inherit;
     font-weight: 700;
     font-size: 1rem;
+    text-align: start;
+    cursor: pointer;
     transition: background var(--transition), color var(--transition);
 }
 
 .store-drawer__nav a:hover,
-.store-drawer__nav a:active {
+.store-drawer__nav a:active,
+.store-drawer__toggle:hover,
+.store-drawer__toggle:active {
     background: color-mix(in srgb, var(--accent) 8%, var(--white));
     color: var(--accent-dark);
 }
 
-.store-drawer__nav ul ul {
-    padding: 0.15rem 0.35rem 0.55rem 0.35rem;
-    margin-inline-start: 0.35rem;
-    border-inline-start: 2px solid color-mix(in srgb, var(--accent) 25%, var(--border));
+.store-drawer__caret {
+    flex-shrink: 0;
+    color: var(--text-muted);
+    transition: transform 180ms ease;
 }
 
-.store-drawer__nav ul ul a {
-    padding: 0.55rem 0.65rem;
+.store-drawer__toggle[aria-expanded="true"] .store-drawer__caret {
+    transform: rotate(180deg);
+    color: var(--accent-dark);
+}
+
+.store-drawer__submenu {
+    margin: 0;
+    padding: 0 0.35rem 0.55rem;
+    list-style: none;
+}
+
+.store-drawer__submenu[hidden] {
+    display: none !important;
+}
+
+.store-drawer__submenu a {
+    padding: 0.65rem 0.75rem;
     font-weight: 500;
     font-size: 0.92rem;
     color: var(--text-muted);
@@ -2282,11 +2303,9 @@ a.store-btn.is-disabled {
 
 .store-catalog__filters {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
-    overflow-x: auto;
-    padding-bottom: 0.35rem;
     margin-bottom: 1.25rem;
-    scrollbar-width: thin;
 }
 
 .store-chip {
@@ -2554,55 +2573,29 @@ a.store-btn.is-disabled {
     margin-top: 1.35rem;
 }
 
-/* Contact + blog heroes: image art is busy on the right, copy belongs on the left. */
+/* Contact + blog listing heroes */
 .store-page-hero--contact,
-.store-page-hero--blog {
-    min-height: clamp(320px, 42vw, 460px);
-    align-items: flex-end;
-}
-
-.store-page-hero--contact .store-page-hero__media,
-.store-page-hero--blog .store-page-hero__media {
-    object-fit: cover;
-    object-position: 78% center;
-}
-
-.store-page-hero--contact .store-page-hero__shade,
-.store-page-hero--blog .store-page-hero__shade {
-    background:
-        linear-gradient(180deg, rgba(248, 241, 234, 0.15) 0%, rgba(248, 241, 234, 0.72) 100%),
-        linear-gradient(90deg, rgba(248, 241, 234, 0.92) 0%, rgba(248, 241, 234, 0.72) 38%, rgba(248, 241, 234, 0.08) 68%, transparent 100%);
-}
-
-.store-page-hero--contact .store-page-hero__content,
-.store-page-hero--blog .store-page-hero__content {
-    width: min(100%, 34rem);
-    max-width: 34rem;
-    color: #3f332c;
+.store-page-hero--blog:not(.store-page-hero--post) {
+    background: #fff;
 }
 
 .store-page-hero--contact .store-page-hero__eyebrow,
-.store-page-hero--blog .store-page-hero__eyebrow {
+.store-page-hero--blog:not(.store-page-hero--post) .store-page-hero__eyebrow {
     color: #76503c;
     font-weight: 700;
 }
 
 .store-page-hero--contact .store-page-hero__title,
-.store-page-hero--blog .store-page-hero__title {
+.store-page-hero--blog:not(.store-page-hero--post) .store-page-hero__title {
     color: #3f332c;
-    max-width: 14ch;
     text-shadow: none;
 }
 
 .store-page-hero--contact .store-page-hero__text,
-.store-page-hero--blog .store-page-hero__text {
+.store-page-hero--blog:not(.store-page-hero--post) .store-page-hero__text {
     color: #4a3b32;
     font-weight: 500;
     text-shadow: none;
-}
-
-.store-page-hero--blog.store-page-hero--short {
-    min-height: clamp(240px, 34vw, 340px);
 }
 
 .store-page-hero--blog .store-page-hero__back {
@@ -2613,38 +2606,94 @@ a.store-btn.is-disabled {
     color: #3f332c;
 }
 
-.store-page-hero--blog.store-page-hero--post .store-page-hero__shade {
-    background: linear-gradient(180deg, rgba(40, 28, 22, 0.2) 0%, rgba(40, 28, 22, 0.78) 100%);
+.store-page-hero--blog.store-page-hero--short {
+    min-height: clamp(240px, 34vw, 340px);
 }
 
-.store-page-hero--blog.store-page-hero--post .store-page-hero__content,
-.store-page-hero--blog.store-page-hero--post .store-page-hero__title,
-.store-page-hero--blog.store-page-hero--post .store-page-hero__back,
-.store-page-hero--blog.store-page-hero--post .store-page-hero__meta {
-    color: #fff;
-}
-
-.store-page-hero--blog.store-page-hero--post .store-page-hero__title {
-    max-width: 22ch;
-}
-
-@media (min-width: 768px) {
+/* Mobile: stack image + copy so nothing overlaps or washes out */
+@media (max-width: 767px) {
     .store-page-hero--contact,
     .store-page-hero--blog:not(.store-page-hero--post) {
-        align-items: center;
-        justify-content: flex-end; /* physical left in RTL — clear side of artwork */
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    .store-page-hero--contact .store-page-hero__media,
+    .store-page-hero--blog:not(.store-page-hero--post) .store-page-hero__media {
+        position: relative;
+        inset: auto;
+        display: block;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16 / 11;
+        object-fit: cover;
+        object-position: 70% center;
+    }
+
+    .store-page-hero--contact .store-page-hero__shade,
+    .store-page-hero--blog:not(.store-page-hero--post) .store-page-hero__shade {
+        display: none;
     }
 
     .store-page-hero--contact .store-page-hero__content,
     .store-page-hero--blog:not(.store-page-hero--post) .store-page-hero__content {
-        width: min(42vw, 28rem);
-        max-width: 28rem;
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-width: none;
         margin: 0;
-        margin-inline-end: clamp(1.25rem, 5vw, 4rem); /* sit in the left clear zone */
-        margin-inline-start: 0;
-        padding: 2.75rem 0;
-        flex: 0 0 auto;
-        align-self: center;
+        padding: 1.35rem 1.2rem 1.65rem;
+        background: #fff;
+        color: #3f332c;
+    }
+
+    .store-page-hero--contact .store-page-hero__eyebrow,
+    .store-page-hero--blog:not(.store-page-hero--post) .store-page-hero__eyebrow {
+        margin: 0 0 0.4rem;
+        font-size: 0.88rem;
+    }
+
+    .store-page-hero--contact .store-page-hero__title,
+    .store-page-hero--blog:not(.store-page-hero--post) .store-page-hero__title {
+        margin: 0;
+        max-width: none;
+        font-size: clamp(1.7rem, 7.5vw, 2.15rem);
+        line-height: 1.25;
+    }
+
+    .store-page-hero--contact .store-page-hero__text,
+    .store-page-hero--blog:not(.store-page-hero--post) .store-page-hero__text {
+        margin: 0.7rem 0 0;
+        max-width: none;
+        font-size: 0.95rem;
+        line-height: 1.7;
+    }
+
+    .store-page-hero--contact .store-page-hero__cta {
+        display: inline-flex;
+        width: 100%;
+        margin-top: 1.15rem;
+        justify-content: center;
+    }
+}
+
+/* Desktop: overlay copy on the clear left side of the artwork */
+@media (min-width: 768px) {
+    .store-page-hero--contact,
+    .store-page-hero--blog:not(.store-page-hero--post) {
+        min-height: clamp(340px, 42vw, 460px);
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    .store-page-hero--contact .store-page-hero__media,
+    .store-page-hero--blog:not(.store-page-hero--post) .store-page-hero__media {
+        object-fit: cover;
+        object-position: 78% center;
     }
 
     .store-page-hero--contact .store-page-hero__shade,
@@ -2656,6 +2705,24 @@ a.store-btn.is-disabled {
             rgba(248, 241, 234, 0.2) 58%,
             transparent 78%
         );
+    }
+
+    .store-page-hero--contact .store-page-hero__content,
+    .store-page-hero--blog:not(.store-page-hero--post) .store-page-hero__content {
+        width: min(42vw, 28rem);
+        max-width: 28rem;
+        margin: 0;
+        margin-inline-end: clamp(1.25rem, 5vw, 4rem);
+        margin-inline-start: 0;
+        padding: 2.75rem 0;
+        flex: 0 0 auto;
+        align-self: center;
+        color: #3f332c;
+    }
+
+    .store-page-hero--contact .store-page-hero__title,
+    .store-page-hero--blog:not(.store-page-hero--post) .store-page-hero__title {
+        max-width: 14ch;
     }
 }
 
@@ -2670,6 +2737,22 @@ a.store-btn.is-disabled {
         width: min(36vw, 30rem);
         margin-inline-end: clamp(2rem, 8vw, 7rem);
     }
+}
+
+/* Single article hero keeps classic dark overlay */
+.store-page-hero--blog.store-page-hero--post .store-page-hero__shade {
+    background: linear-gradient(180deg, rgba(40, 28, 22, 0.2) 0%, rgba(40, 28, 22, 0.78) 100%);
+}
+
+.store-page-hero--blog.store-page-hero--post .store-page-hero__content,
+.store-page-hero--blog.store-page-hero--post .store-page-hero__title,
+.store-page-hero--blog.store-page-hero--post .store-page-hero__back,
+.store-page-hero--blog.store-page-hero--post .store-page-hero__meta {
+    color: #fff;
+}
+
+.store-page-hero--blog.store-page-hero--post .store-page-hero__title {
+    max-width: 22ch;
 }
 
 .store-page-hero__back {

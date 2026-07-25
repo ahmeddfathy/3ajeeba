@@ -63,7 +63,7 @@
                         type="search"
                         name="q"
                         value="{{ $search }}"
-                        placeholder="عباية، قسم، مجموعة..."
+                        placeholder="{{ $collection ? 'ابحثي داخل المجموعة...' : ($category ? 'ابحثي داخل القسم...' : 'عباية، قسم، مجموعة...') }}"
                         data-search-input
                         autocomplete="off"
                         role="combobox"
@@ -98,7 +98,7 @@
                     type="search"
                     name="q"
                     value="{{ $search }}"
-                    placeholder="عباية، قسم، مجموعة..."
+                    placeholder="{{ $collection ? 'ابحثي داخل المجموعة...' : ($category ? 'ابحثي داخل القسم...' : 'عباية، قسم، مجموعة...') }}"
                     data-search-input
                     autocomplete="off"
                     role="combobox"
