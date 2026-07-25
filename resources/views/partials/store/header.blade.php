@@ -23,13 +23,34 @@
             <ul class="store-nav__list">
                 @foreach ($nav as $item)
                     @php
-                        $hasChildren = !empty($item['children']);
+                        $key = $item['key'] ?? null;
                         $routeName = $item['route'] ?? null;
+                        if ($routeName === 'contact') continue; // Contact link is placed on the left side in actions
+
+                        $children = $item['children'] ?? [];
+
+                        if ($key === 'categories' && isset($storeCategories) && $storeCategories->isNotEmpty()) {
+                            $children = array_merge([
+                                ['label' => 'جميع الأقسام', 'url' => route('products.index')]
+                            ], $storeCategories->map(fn($c) => [
+                                'label' => $c->name,
+                                'url' => route('products.index', ['category' => $c->slug])
+                            ])->all());
+                        } elseif ($key === 'collections' && isset($storeCollections) && $storeCollections->isNotEmpty()) {
+                            $children = array_merge([
+                                ['label' => 'جميع المجموعات', 'url' => route('products.index')]
+                            ], $storeCollections->map(fn($c) => [
+                                'label' => $c->name,
+                                'url' => route('products.index', ['collection' => $c->slug])
+                            ])->all());
+                        }
+
+                        $hasChildren = !empty($children);
                         $isActive = ($routeName === 'home' && $activeNav === 'home')
-                            || ($routeName === 'products.index' && $activeNav === 'products')
-                            || ($routeName === 'contact' && $activeNav === 'contact')
-                            || ($routeName === 'blog.index' && $activeNav === 'blog')
-                            || (!empty($item['active']) && $activeNav === 'home');
+                            || ($routeName === 'products.index' && $activeNav === 'products' && !$key)
+                            || ($key === 'categories' && request()->has('category'))
+                            || ($key === 'collections' && request()->has('collection'))
+                            || ($routeName === 'blog.index' && $activeNav === 'blog');
                     @endphp
                     <li class="store-nav__item {{ $hasChildren ? 'has-dropdown' : '' }}">
                         @if ($hasChildren)
@@ -46,7 +67,7 @@
                                 </svg>
                             </button>
                             <ul class="store-dropdown" data-dropdown-menu>
-                                @foreach ($item['children'] as $child)
+                                @foreach ($children as $child)
                                     <li>
                                         <a href="{{ url($child['url']) }}">{{ $child['label'] }}</a>
                                     </li>
@@ -77,6 +98,10 @@
         </a>
 
         <div class="store-header__actions">
+            <a href="{{ route('contact') }}" class="store-header__contact-btn {{ $activeNav === 'contact' ? 'is-active' : '' }}">
+                تواصل معنا
+            </a>
+
             <button type="button" class="store-icon-btn" data-open-search aria-label="البحث">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.6"/>
@@ -85,9 +110,9 @@
             </button>
 
             <button type="button" class="store-icon-btn" data-open-drawer="cart" aria-label="السلة">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M7 8h10l-1 11H8L7 8z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
-                    <path d="M9 8a3 3 0 0 1 6 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M16 11V7a4 4 0 0 0-8 0v4"/>
+                    <rect x="4" y="7" width="16" height="14" rx="3"/>
                 </svg>
                 <span class="store-badge" data-cart-count hidden>0</span>
             </button>

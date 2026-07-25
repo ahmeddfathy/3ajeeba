@@ -31,8 +31,6 @@
 
     <div class="store-catalog__filters" role="navigation" aria-label="تصفية الأقسام">
         <a href="{{ route('products.index') }}" class="store-chip {{ ! $category && ! $filter && ! $collection ? 'is-active' : '' }}">الكل</a>
-        <a href="{{ route('products.index', ['filter' => 'featured']) }}" class="store-chip {{ $filter === 'featured' ? 'is-active' : '' }}">الأكثر مبيعًا</a>
-        <a href="{{ route('products.index', ['filter' => 'new']) }}" class="store-chip {{ $filter === 'new' ? 'is-active' : '' }}">جديدنا</a>
         @foreach ($categories as $item)
             <a
                 href="{{ route('products.index', ['category' => $item->slug]) }}"

@@ -85,6 +85,179 @@ function createStore() {
         });
     }
 
+    const stickyCartBar = document.querySelector('[data-cart-sticky-bar]');
+    const cartBarCount = stickyCartBar?.querySelector('[data-cart-bar-count]');
+    const cartBarTotal = stickyCartBar?.querySelector('[data-cart-bar-total]');
+    const cartBarWhatsapp = stickyCartBar?.querySelector('[data-cart-bar-whatsapp]');
+
+    const quickPickModal = document.querySelector('[data-quick-pick-modal]');
+    const qpImg = quickPickModal?.querySelector('[data-qp-img]');
+    const qpTitle = quickPickModal?.querySelector('[data-qp-title]');
+    const qpPrice = quickPickModal?.querySelector('[data-qp-price]');
+    const qpColorGroup = quickPickModal?.querySelector('[data-qp-color-group]');
+    const qpColors = quickPickModal?.querySelector('[data-qp-colors]');
+    const qpSizeGroup = quickPickModal?.querySelector('[data-qp-size-group]');
+    const qpSizes = quickPickModal?.querySelector('[data-qp-sizes]');
+
+    let currentQpCard = null;
+    let currentQpVariants = [];
+    let currentQpSelectedColor = '';
+    let currentQpSelectedSize = '';
+
+    function closeQuickPick() {
+        if (!quickPickModal) return;
+        quickPickModal.hidden = true;
+        currentQpCard = null;
+        currentQpVariants = [];
+    }
+
+    function openQuickPick(card) {
+        if (!quickPickModal || !card) return;
+        currentQpCard = card;
+        try {
+            currentQpVariants = JSON.parse(card.dataset.variants || '[]');
+        } catch (e) {
+            currentQpVariants = [];
+        }
+
+        if (!currentQpVariants.length) return;
+
+        if (qpImg) {
+            const image = card.dataset.productImage || '';
+            if (image) {
+                qpImg.src = image;
+                qpImg.hidden = false;
+            } else {
+                qpImg.removeAttribute('src');
+                qpImg.hidden = true;
+            }
+        }
+        if (qpTitle) qpTitle.textContent = card.dataset.productName || '';
+        if (qpPrice) qpPrice.textContent = formatMoney(card.dataset.productPrice || 0);
+
+        const colors = [...new Set(currentQpVariants.map((v) => v.color).filter(Boolean))];
+        const sizes = [...new Set(currentQpVariants.map((v) => v.size).filter(Boolean))];
+
+        currentQpSelectedColor = colors[0] || '';
+        currentQpSelectedSize = sizes[0] || '';
+
+        if (colors.length && qpColorGroup && qpColors) {
+            qpColorGroup.hidden = false;
+            qpColors.innerHTML = colors.map((c) => `
+                <button type="button" class="store-quick-pick__btn ${c === currentQpSelectedColor ? 'is-selected' : ''}" data-qp-opt-color="${c}">${c}</button>
+            `).join('');
+        } else if (qpColorGroup) {
+            qpColorGroup.hidden = true;
+        }
+
+        if (sizes.length && qpSizeGroup && qpSizes) {
+            qpSizeGroup.hidden = false;
+            qpSizes.innerHTML = sizes.map((s) => `
+                <button type="button" class="store-quick-pick__btn ${s === currentQpSelectedSize ? 'is-selected' : ''}" data-qp-opt-size="${s}">${s}</button>
+            `).join('');
+        } else if (qpSizeGroup) {
+            qpSizeGroup.hidden = true;
+        }
+
+        updateQpSelection();
+        quickPickModal.hidden = false;
+    }
+
+    function updateQpSelection() {
+        if (!currentQpVariants.length) return;
+        const match = currentQpVariants.find((v) => {
+            const matchColor = !v.color || v.color === currentQpSelectedColor;
+            const matchSize = !v.size || v.size === currentQpSelectedSize;
+            return matchColor && matchSize;
+        }) || currentQpVariants[0];
+
+        if (match && qpPrice) {
+            qpPrice.textContent = formatMoney(match.price);
+        }
+
+        qpColors?.querySelectorAll('[data-qp-opt-color]').forEach((btn) => {
+            btn.classList.toggle('is-selected', btn.dataset.qpOptColor === currentQpSelectedColor);
+        });
+
+        qpSizes?.querySelectorAll('[data-qp-opt-size]').forEach((btn) => {
+            btn.classList.toggle('is-selected', btn.dataset.qpOptSize === currentQpSelectedSize);
+        });
+    }
+
+    quickPickModal?.querySelectorAll('[data-close-quick-pick]').forEach((btn) => {
+        btn.addEventListener('click', closeQuickPick);
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && quickPickModal && !quickPickModal.hidden) {
+            closeQuickPick();
+        }
+    });
+
+    quickPickModal?.addEventListener('click', (e) => {
+        const colorBtn = e.target.closest('[data-qp-opt-color]');
+        if (colorBtn) {
+            currentQpSelectedColor = colorBtn.dataset.qpOptColor;
+            updateQpSelection();
+            return;
+        }
+
+        const sizeBtn = e.target.closest('[data-qp-opt-size]');
+        if (sizeBtn) {
+            currentQpSelectedSize = sizeBtn.dataset.qpOptSize;
+            updateQpSelection();
+            return;
+        }
+
+        if (e.target.closest('[data-qp-submit]')) {
+            if (!currentQpCard || !currentQpVariants.length) return;
+            const match = currentQpVariants.find((v) => {
+                const matchColor = !v.color || v.color === currentQpSelectedColor;
+                const matchSize = !v.size || v.size === currentQpSelectedSize;
+                return matchColor && matchSize;
+            }) || currentQpVariants[0];
+
+            const labelParts = [];
+            if (match.size) labelParts.push(`المقاس: ${match.size}`);
+            if (match.color) labelParts.push(`اللون: ${match.color}`);
+
+            const product = {
+                id: Number(currentQpCard.dataset.productId),
+                name: currentQpCard.dataset.productName,
+                price: Number(match.price),
+                image: currentQpCard.dataset.productImage || '',
+                quantity: 1,
+                variantId: match.id,
+                variantLabel: match.label || labelParts.join(' | '),
+                size: match.size || '',
+                color: match.color || '',
+            };
+
+            addToCart(product, { open: false });
+            closeQuickPick();
+        }
+    });
+
+    function syncStickyCartBar() {
+        if (!stickyCartBar) return;
+        const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+        const totalAmount = cart.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
+
+        if (totalItems > 0) {
+            stickyCartBar.hidden = false;
+            if (cartBarCount) {
+                cartBarCount.textContent = totalItems === 1 ? 'منتج واحد' : `${totalItems} منتجات`;
+            }
+            if (cartBarTotal) cartBarTotal.textContent = formatMoney(totalAmount);
+            if (cartBarWhatsapp) {
+                const url = buildWhatsAppUrl(cartMessage());
+                cartBarWhatsapp.href = url || '#';
+            }
+        } else {
+            stickyCartBar.hidden = true;
+        }
+    }
+
     function persist() {
         writeStorage(CART_KEY, cart);
         writeStorage(WISHLIST_KEY, wishlist);
@@ -92,6 +265,7 @@ function createStore() {
         renderCart();
         renderWishlist();
         syncWhatsAppCheckout();
+        syncStickyCartBar();
     }
 
     function syncWhatsAppCheckout() {
@@ -225,8 +399,9 @@ function createStore() {
         const quantity = Math.max(1, Number(qtyInput?.value || 1));
         const hasVariants = card.dataset.hasVariants === '1';
         const variantId = card.dataset.variantId ? Number(card.dataset.variantId) : null;
+        const isPdp = card.classList.contains('store-pdp');
 
-        if (hasVariants && !variantId) {
+        if (hasVariants && !variantId && isPdp) {
             return null;
         }
 
@@ -438,10 +613,9 @@ function createStore() {
         const addBtn = event.target.closest('[data-add-to-cart]');
         if (addBtn) {
             const card = addBtn.closest('[data-product-card]');
-            if (card?.dataset.hasVariants === '1' && !card.classList.contains('store-pdp')) {
-                return;
-            }
-            if (card) addToCart(productFromCard(card));
+            if (!card) return;
+
+            addToCart(productFromCard(card), { open: false });
             return;
         }
 
@@ -449,13 +623,21 @@ function createStore() {
         if (waBuy) {
             const card = waBuy.closest('[data-product-card]');
             if (!card) return;
+            const isPdp = card.classList.contains('store-pdp');
             const product = productFromCard(card);
             if (!product) {
                 alert('اختاري المقاس واللون أولًا');
                 return;
             }
-            const variantLine = product.variantLabel ? `الفاريانت: ${product.variantLabel}\n` : '';
-            const message = `${intro}1) ${product.name}\n${variantLine}الكمية: ${product.quantity}\nالسعر: ${formatMoney(product.price)}\n\nالإجمالي: ${formatMoney(product.price * product.quantity)}\n`;
+
+            let message;
+            if (isPdp) {
+                const variantLine = product.variantLabel ? `الفاريانت: ${product.variantLabel}\n` : '';
+                message = `${intro}1) ${product.name}\n${variantLine}الكمية: ${product.quantity}\nالسعر: ${formatMoney(product.price)}\n\nالإجمالي: ${formatMoney(product.price * product.quantity)}\n`;
+            } else {
+                message = `السلام عليكم، أريد الاستفسار عن المنتج التالي من عجيبة:\n\n${product.name}\nالسعر: ${formatMoney(product.price)}\n\n(المقاس واللون حسب التوفر)`;
+            }
+
             const url = buildWhatsAppUrl(message);
             if (!url) {
                 alert('رقم واتساب غير مضبوط بعد. أضيفيه في STORE_WHATSAPP داخل ملف .env');
@@ -653,6 +835,21 @@ function createStore() {
     }
 
     onlineCheckoutForm?.addEventListener('submit', submitOnlineOrder);
+
+    const scrollTopBtn = document.querySelector('[data-scroll-top]');
+    if (scrollTopBtn) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 250) {
+                scrollTopBtn.classList.add('is-visible');
+            } else {
+                scrollTopBtn.classList.remove('is-visible');
+            }
+        }, { passive: true });
+
+        scrollTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
 
     initVariantPicker();
     persist();

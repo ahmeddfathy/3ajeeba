@@ -155,36 +155,20 @@
             @endif
             <a
                 href="https://wa.me/{{ $whatsapp }}"
-                class="store-btn {{ $allowOnline ? 'store-btn--ghost' : 'store-btn--primary' }} store-btn--block"
+                class="store-wa-btn store-wa-btn--block {{ $allowOnline ? '' : '' }}"
                 data-whatsapp-checkout
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-disabled="true"
             >
-                إتمام الطلب عبر واتساب
+                @include('partials.store.icon-whatsapp', ['size' => 20])
+                <span>إتمام الطلب عبر واتساب</span>
             </a>
         @endif
     </div>
 </aside>
 
-{{-- Wishlist drawer --}}
-<aside
-    class="store-drawer store-drawer--panel"
-    data-drawer="wishlist"
-    hidden
-    aria-hidden="true"
-    aria-label="المفضلة"
->
-    <div class="store-drawer__head">
-        <h2>المفضلة</h2>
-        <button type="button" class="store-icon-btn" data-close-drawer aria-label="إغلاق المفضلة">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-            </svg>
-        </button>
-    </div>
-    <div class="store-drawer__body" data-wishlist-items></div>
-</aside>
+
 
 {{-- Search dialog --}}
 <dialog class="store-search" data-search-dialog aria-label="البحث في المتجر">
@@ -211,3 +195,37 @@
         <p class="store-search__hint">اكتبِ اسم المنتج ثم اضغطي بحث.</p>
     </form>
 </dialog>
+
+{{-- Quick Pick Variant Selection Modal --}}
+<div class="store-quick-pick" data-quick-pick-modal hidden>
+    <div class="store-quick-pick__backdrop" data-close-quick-pick></div>
+    <div class="store-quick-pick__dialog">
+        <button type="button" class="store-quick-pick__close" data-close-quick-pick aria-label="إغلاق">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 6l12 12M18 6L6 18"/>
+            </svg>
+        </button>
+        <div class="store-quick-pick__head">
+            <img src="" alt="" class="store-quick-pick__img" data-qp-img hidden>
+            <div class="store-quick-pick__meta">
+                <h3 class="store-quick-pick__title" data-qp-title></h3>
+                <div class="store-quick-pick__price" data-qp-price></div>
+            </div>
+        </div>
+        <div class="store-quick-pick__body">
+            <div class="store-quick-pick__group" data-qp-color-group hidden>
+                <label class="store-quick-pick__label">اختاري اللون:</label>
+                <div class="store-quick-pick__options" data-qp-colors></div>
+            </div>
+            <div class="store-quick-pick__group" data-qp-size-group hidden>
+                <label class="store-quick-pick__label">اختاري المقاس:</label>
+                <div class="store-quick-pick__options" data-qp-sizes></div>
+            </div>
+        </div>
+        <div class="store-quick-pick__foot">
+            <button type="button" class="store-btn store-btn--primary store-btn--block" data-qp-submit>
+                تأكيد وإضافة للسلة
+            </button>
+        </div>
+    </div>
+</div>

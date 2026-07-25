@@ -108,7 +108,7 @@
                 @if ($colors->isNotEmpty())
                     <div class="store-pdp__option" data-option-color>
                         <div class="store-pdp__option-label">
-                            <span>اللون</span>
+                            <span>اللون:</span>
                             <strong data-selected-color>{{ $default?->color }}</strong>
                         </div>
                         <div class="store-pdp__swatches" role="listbox" aria-label="اختيار اللون">
@@ -135,7 +135,7 @@
                 @if ($sizes->isNotEmpty())
                     <div class="store-pdp__option" data-option-size>
                         <div class="store-pdp__option-label">
-                            <span>المقاس</span>
+                            <span>المقاس:</span>
                             <strong data-selected-size>{{ $default?->size }}</strong>
                         </div>
                         <div class="store-pdp__sizes" role="listbox" aria-label="اختيار المقاس">
@@ -154,13 +154,14 @@
                     </div>
                 @endif
 
-                <p class="store-pdp__variant-note" data-variant-note>
-                    الاختيار: <strong data-variant-label-text>{{ $default?->label }}</strong>
-                </p>
+                <div class="store-pdp__variant-badge" data-variant-note>
+                    <span>الخيار المحدد:</span>
+                    <strong data-variant-label-text>{{ $default?->label }}</strong>
+                </div>
             @endif
 
             <div class="store-pdp__qty">
-                <span>الكمية</span>
+                <span>الكمية المطلوبة</span>
                 <div class="store-qty">
                     <button type="button" data-pdp-decrease aria-label="تقليل الكمية">−</button>
                     <input type="number" min="1" value="1" data-pdp-qty aria-label="كمية المنتج">
@@ -169,30 +170,28 @@
             </div>
 
             <div class="store-pdp__actions">
-                <button type="button" class="store-btn store-btn--primary" data-add-to-cart>
-                    أضيفي للسلة
+                <button type="button" class="store-btn store-btn--primary store-pdp__cart-btn" data-add-to-cart>
+                    إضافة للسلة
                 </button>
-                <button type="button" class="store-btn store-btn--ghost" data-whatsapp-buy>
-                    اطلبي عبر واتساب
-                </button>
-                <button
-                    type="button"
-                    class="store-icon-btn store-pdp__wish"
-                    data-wishlist-toggle
-                    data-product-id="{{ $product->id }}"
-                    aria-label="إضافة إلى المفضلة"
-                    aria-pressed="false"
-                >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
-                    </svg>
+                <button type="button" class="store-wa-btn store-pdp__wa-btn" data-whatsapp-buy>
+                    @include('partials.store.icon-whatsapp', ['size' => 20])
+                    <span>اطلبي عبر واتساب</span>
                 </button>
             </div>
 
             <ul class="store-pdp__perks">
-                <li>إرجاع سهل خلال {{ config('store.return_days', 14) }} يوم</li>
-                <li>تأكيد الطلب عبر واتساب خلال دقائق</li>
-                <li>تغليف فاخر مع كل طلب</li>
+                <li>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    إرجاع واستبدال مرن خلال {{ config('store.return_days', 14) }} يوم
+                </li>
+                <li>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    تأكيد ومتابعة فورية للطلب عبر واتساب
+                </li>
+                <li>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    تغليف راقي ومناسب للهدايا والمناسبات
+                </li>
             </ul>
         </div>
     </div>

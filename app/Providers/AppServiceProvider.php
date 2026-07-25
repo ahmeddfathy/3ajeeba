@@ -20,7 +20,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrapFive();
 
-        View::composer(['layouts.store', 'partials.store.overlays', 'partials.store.bottom-nav'], function ($view) {
+        View::composer(['layouts.store', 'partials.store.overlays', 'partials.store.bottom-nav', 'partials.store.header'], function ($view) {
             try {
                 if (! Schema::hasTable('categories')) {
                     $view->with('storeCategories', collect());

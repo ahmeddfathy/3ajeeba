@@ -43,20 +43,45 @@ return [
 
     'nav' => [
         [
-            'label' => 'المنتجات',
+            'label' => 'الرئيسية',
             'url' => '/',
             'route' => 'home',
         ],
-        ['label' => 'المجموعات', 'url' => '/products', 'route' => 'products.index'],
-        ['label' => 'جديدنا', 'url' => '/products?filter=new'],
+        [
+            'label' => 'المنتجات',
+            'url' => '/products',
+            'route' => 'products.index',
+        ],
+        [
+            'label' => 'الأقسام',
+            'url' => '/products',
+            'key' => 'categories',
+            'children' => [
+                ['label' => 'جميع الأقسام', 'url' => '/products'],
+                ['label' => 'عبايات', 'url' => '/products?category=abayas'],
+                ['label' => 'حجابات', 'url' => '/products?category=hijabs'],
+                ['label' => 'خمر', 'url' => '/products?category=khimar'],
+                ['label' => 'إكسسوارات', 'url' => '/products?category=accessories'],
+            ],
+        ],
+        [
+            'label' => 'المجموعات',
+            'url' => '/products',
+            'key' => 'collections',
+            'children' => [
+                ['label' => 'جميع المجموعات', 'url' => '/products'],
+                ['label' => 'مجموعة رمضانية', 'url' => '/products?collection=ramadan'],
+                ['label' => 'مجموعة الربيع', 'url' => '/products?collection=spring'],
+                ['label' => 'مجموعة المناسبات', 'url' => '/products?collection=occasions'],
+            ],
+        ],
         ['label' => 'المدونة', 'url' => '/blog', 'route' => 'blog.index'],
         ['label' => 'تواصل معنا', 'url' => '/contact', 'route' => 'contact'],
     ],
 
     'bottom_nav' => [
         ['key' => 'home', 'label' => 'الرئيسية', 'url' => '/', 'icon' => 'home'],
-        ['key' => 'categories', 'label' => 'الأقسام', 'url' => '#categories-sheet', 'icon' => 'grid'],
-        ['key' => 'products', 'label' => 'المنتجات', 'url' => '/', 'icon' => 'bag'],
+        ['key' => 'categories', 'label' => 'المتجر', 'url' => '#categories-sheet', 'icon' => 'shop'],
         ['key' => 'cart', 'label' => 'السلة', 'url' => '#cart', 'icon' => 'cart'],
     ],
 
@@ -67,6 +92,21 @@ return [
         'cta_url' => '/products',
         'image' => 'assets/images/store/hero-cover.jpg',
         'image_alt' => 'تشكيلات عجيبة للأزياء المحتشمة',
+    ],
+
+    'contact_page' => [
+        'image' => 'assets/images/store/hero-cover.jpg',
+        'image_alt' => 'فريق عجيبة — خدمة العملاء',
+        'hours' => 'يوميًا من 10 صباحًا حتى 10 مساءً',
+        'response_note' => 'نرد على واتساب خلال دقائق',
+        'location' => 'بني سويف، مصر',
+        'location_note' => 'فرع رئيسي معتمد من مصنع عجيبة',
+    ],
+
+    'blog_page' => [
+        'image' => 'assets/images/store/hero-cover.jpg',
+        'image_alt' => 'مدونة عجيبة — نصائح وأناقة',
+        'lead' => 'نصائح ستايل، أفكار تنسيق، وكل ما يساعدكِ تختاري إطلالتك بثقة.',
     ],
 
     'categories' => [

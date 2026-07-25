@@ -19,14 +19,8 @@
             <p>{!! nl2br(e($footer['about'])) !!}</p>
         </div>
 
-        <div class="store-footer__col" data-footer-accordion>
-            <button type="button" class="store-footer__toggle" aria-expanded="false">
-                معلومات
-                <svg width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                    <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-                </svg>
-            </button>
-            <h3 class="store-footer__heading">معلومات</h3>
+        <div class="store-footer__col">
+            <h3 class="store-footer__heading">روابط تهمك</h3>
             <ul>
                 @foreach ($footer['info'] as $link)
                     <li>
@@ -42,13 +36,7 @@
             </ul>
         </div>
 
-        <div class="store-footer__col" data-footer-accordion>
-            <button type="button" class="store-footer__toggle" aria-expanded="false">
-                خدمة العملاء
-                <svg width="14" height="14" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                    <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-                </svg>
-            </button>
+        <div class="store-footer__col">
             <h3 class="store-footer__heading">خدمة العملاء</h3>
             <ul>
                 @foreach ($footer['support'] as $link)
@@ -82,21 +70,11 @@
                                 @include('partials.store.social-icon', ['name' => $key])
                             </a>
                         @else
-                            {{-- TODO: أضف رابط {{ $label }} في config/store.php --}}
                             <span class="is-disabled" aria-label="{{ $label }} (قريبًا)" title="قريبًا">
                                 @include('partials.store.social-icon', ['name' => $key])
                             </span>
                         @endif
                     </li>
-                @endforeach
-            </ul>
-
-            <h3 class="store-footer__heading store-footer__heading--payments">طرق الدفع</h3>
-            <ul class="store-footer__payments" aria-label="وسائل الدفع">
-                @foreach (['mada' => 'مدى', 'visa' => 'Visa', 'mastercard' => 'Mastercard', 'apple_pay' => 'Apple Pay'] as $key => $label)
-                    @if (!empty($payments[$key]))
-                        <li><span>{{ $label }}</span></li>
-                    @endif
                 @endforeach
             </ul>
         </div>
@@ -105,4 +83,11 @@
     <div class="store-footer__bottom">
         <p>© {{ now()->year }} عجيبة. جميع الحقوق محفوظة.</p>
     </div>
+
+    {{-- Floating scroll to top button matching reference design --}}
+    <button type="button" class="store-scroll-top" data-scroll-top aria-label="الرجوع للأعلى">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 15l-6-6-6 6"/>
+        </svg>
+    </button>
 </footer>

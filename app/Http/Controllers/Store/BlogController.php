@@ -26,10 +26,23 @@ class BlogController extends Controller
             });
         }
 
+        $featured = null;
+        if (
+            ! $request->filled('search')
+            && ! $request->filled('category')
+            && (int) $request->get('page', 1) === 1
+        ) {
+            $featured = (clone $query)->first();
+        }
+
+        if ($featured) {
+            $query->where('id', '!=', $featured->id);
+        }
+
         $blogs = $query->paginate(9)->withQueryString();
         $categories = BlogCategory::active()->withCount(['blogs' => fn ($q) => $q->published()])->get();
 
-        return view('store.blog.index', compact('blogs', 'categories'));
+        return view('store.blog.index', compact('blogs', 'categories', 'featured'));
     }
 
     public function category(BlogCategory $category)

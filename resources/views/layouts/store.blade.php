@@ -60,7 +60,7 @@
         </div>
     </div>
 
-    @include('partials.store.bottom-nav')
+    @include('partials.store.bottom-dock')
     @include('partials.store.overlays')
 
     @stack('scripts')
