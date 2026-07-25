@@ -13,7 +13,8 @@
 /.zed
 /auth.json
 /node_modules
-/public/build
+# Build assets are committed so shared hosting can deploy without Node.
+# /public/build
 /public/hot
 /public/storage
 # Ignore product uploads, but keep seed placeholders trackable.
