@@ -11,12 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@500;600;700&family=Tajawal:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    @if (file_exists(public_path('hot')))
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @else
-        <link rel="stylesheet" href="{{ Vite::asset('resources/css/app.css') }}?t={{ time() }}">
-        <script type="module" src="{{ Vite::asset('resources/js/app.js') }}?t={{ time() }}"></script>
-    @endif
+    @include('partials.vite-assets')
 
     <script type="application/ld+json">
     {!! json_encode([
