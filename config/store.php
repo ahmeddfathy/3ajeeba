@@ -95,8 +95,8 @@ return [
     ],
 
     'contact_page' => [
-        'image' => 'assets/images/store/hero-cover.jpg',
-        'image_alt' => 'فريق عجيبة — خدمة العملاء',
+        'image' => 'assets/images/contact.png',
+        'image_alt' => 'تواصل مع عجيبة — خدمة العملاء',
         'hours' => 'يوميًا من 10 صباحًا حتى 10 مساءً',
         'response_note' => 'نرد على واتساب خلال دقائق',
         'location' => 'بني سويف، مصر',
@@ -104,7 +104,7 @@ return [
     ],
 
     'blog_page' => [
-        'image' => 'assets/images/store/hero-cover.jpg',
+        'image' => 'assets/images/blog-hero.png',
         'image_alt' => 'مدونة عجيبة — نصائح وأناقة',
         'lead' => 'نصائح ستايل، أفكار تنسيق، وكل ما يساعدكِ تختاري إطلالتك بثقة.',
     ],
