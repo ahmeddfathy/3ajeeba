@@ -81,9 +81,8 @@
             <button type="button" class="store-product-card__add" data-add-to-cart>
                 أضيفي للسلة
             </button>
-            <button type="button" class="store-wa-btn store-product-card__wa" data-whatsapp-buy aria-label="اطلبي {{ $product->name }} عبر واتساب">
+            <button type="button" class="store-wa-btn store-product-card__wa" data-whatsapp-buy aria-label="اطلبي {{ $product->name }} عبر واتساب" title="واتساب">
                 @include('partials.store.icon-whatsapp', ['size' => 18])
-                <span>واتساب</span>
             </button>
         </div>
     </div>

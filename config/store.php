@@ -90,7 +90,7 @@ return [
         'text' => "تشكيلات عجيبة تجمع بين الرقي والراحة،\nلتمنحك إطلالة ساحرة في كل مناسبة.",
         'cta' => 'تسوقي الآن',
         'cta_url' => '/products',
-        'image' => 'assets/images/store/hero-cover.jpg',
+        'image' => 'assets/images/home-hero.png',
         'image_alt' => 'تشكيلات عجيبة للأزياء المحتشمة',
     ],
 
@@ -181,13 +181,13 @@ return [
     ],
 
     'seasonal_banner' => [
-        'title' => 'مجموعة العيد',
-        'text' => 'احتفلي بأجمل اللحظات مع تشكيلة العيد الحصرية',
-        'cta' => 'تسوقي الآن',
-        'cta_secondary' => 'اكتشفي المجموعة',
-        'cta_url' => '/products?collection=occasions',
-        'image' => 'assets/images/store/hero-cover.jpg',
-        'image_alt' => 'بانر المجموعة الموسمية',
+        'title' => 'تواصلي معنا عبر الواتساب',
+        'text' => 'لأي استفسار عن المقاسات، الألوان، أو الطلبات — نحن هنا لمساعدتكِ',
+        'cta' => 'تواصل معنا',
+        'cta_secondary' => 'طلب سريع',
+        'cta_url' => '/contact',
+        'image' => 'assets/images/home-cta.png',
+        'image_alt' => 'تواصل مع عجيبة عبر واتساب',
     ],
 
     'footer' => [
@@ -201,8 +201,6 @@ return [
         'support' => [
             ['label' => 'اتصلي بنا', 'url' => '/contact'],
             ['label' => 'الأسئلة الشائعة', 'url' => '/contact'],
-            ['label' => 'سياسة الشحن', 'url' => '/contact'],
-            ['label' => 'سياسة الإرجاع والاستبدال', 'url' => '/contact'],
         ],
     ],
 

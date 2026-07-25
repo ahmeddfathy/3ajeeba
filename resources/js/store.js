@@ -748,10 +748,188 @@ function createStore() {
         }
     });
 
+    function escapeHtml(value) {
+        return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function suggestItemHtml(item, index) {
+        const thumb = item.image
+            ? `<img src="${escapeHtml(item.image)}" alt="" loading="lazy" decoding="async">`
+            : `<span>${escapeHtml(String(item.title || '').slice(0, 1))}</span>`;
+        const typeLabel = item.type === 'category'
+            ? 'قسم'
+            : item.type === 'collection'
+                ? 'مجموعة'
+                : 'منتج';
+
+        return `
+            <a
+                href="${escapeHtml(item.url)}"
+                class="store-search__suggest-item"
+                role="option"
+                data-suggest-index="${index}"
+                id="suggest-option-${index}"
+            >
+                <span class="store-search__suggest-thumb">${thumb}</span>
+                <span>
+                    <p class="store-search__suggest-title">${escapeHtml(item.title)}</p>
+                    <p class="store-search__suggest-sub">${escapeHtml(item.subtitle || '')}</p>
+                </span>
+                <span class="store-search__suggest-type">${typeLabel}</span>
+            </a>
+        `;
+    }
+
+    function renderSuggestions(panel, data) {
+        const groups = [
+            { key: 'categories', label: 'أقسام' },
+            { key: 'collections', label: 'مجموعات' },
+            { key: 'products', label: data.q ? 'منتجات' : 'مقترحات لك' },
+        ];
+
+        let html = '';
+        let index = 0;
+        const flat = [];
+
+        groups.forEach((group) => {
+            const items = Array.isArray(data[group.key]) ? data[group.key] : [];
+            if (!items.length) return;
+            html += `<div class="store-search__suggest-group">`;
+            html += `<p class="store-search__suggest-label">${group.label}</p>`;
+            items.forEach((item) => {
+                flat.push(item);
+                html += suggestItemHtml(item, index);
+                index += 1;
+            });
+            html += `</div>`;
+        });
+
+        if (!flat.length) {
+            html = data.q
+                ? `<p class="store-search__suggest-empty">لا توجد نتائج قريبة — جرّبي كلمة أقصر أو اسم قسم.</p>`
+                : `<p class="store-search__suggest-empty">ابدئي بالكتابة للبحث في المنتجات والأقسام.</p>`;
+        }
+
+        if (data.see_all_url) {
+            html += `<a class="store-search__suggest-all" href="${escapeHtml(data.see_all_url)}">${escapeHtml(data.see_all_label || 'عرض كل النتائج')}</a>`;
+        }
+
+        panel.innerHTML = html;
+        panel.hidden = false;
+        return flat;
+    }
+
+    function initSearchSuggest(form) {
+        const input = form.querySelector('[data-search-input]');
+        const panel = form.querySelector('[data-search-suggest]');
+        const hint = form.querySelector('[data-search-hint]');
+        const suggestUrl = form.dataset.suggestUrl;
+        if (!input || !panel || !suggestUrl) return;
+
+        let timer = 0;
+        let activeIndex = -1;
+        let items = [];
+        let lastController = null;
+
+        const setExpanded = (open) => {
+            input.setAttribute('aria-expanded', open ? 'true' : 'false');
+            if (!open) {
+                panel.hidden = true;
+                activeIndex = -1;
+                input.removeAttribute('aria-activedescendant');
+            }
+        };
+
+        const highlight = () => {
+            panel.querySelectorAll('[data-suggest-index]').forEach((el) => {
+                const idx = Number(el.dataset.suggestIndex);
+                el.classList.toggle('is-active', idx === activeIndex);
+            });
+            if (activeIndex >= 0) {
+                input.setAttribute('aria-activedescendant', `suggest-option-${activeIndex}`);
+            } else {
+                input.removeAttribute('aria-activedescendant');
+            }
+        };
+
+        const fetchSuggestions = async (q) => {
+            if (lastController) lastController.abort();
+            lastController = new AbortController();
+            try {
+                const url = new URL(suggestUrl, window.location.origin);
+                url.searchParams.set('q', q);
+                const res = await fetch(url.toString(), {
+                    headers: { Accept: 'application/json' },
+                    signal: lastController.signal,
+                });
+                if (!res.ok) return;
+                const data = await res.json();
+                items = renderSuggestions(panel, data);
+                activeIndex = -1;
+                setExpanded(true);
+                highlight();
+                if (hint) {
+                    hint.hidden = Boolean(data.q) || items.length > 0;
+                }
+            } catch (error) {
+                if (error?.name !== 'AbortError') {
+                    setExpanded(false);
+                }
+            }
+        };
+
+        const schedule = () => {
+            window.clearTimeout(timer);
+            timer = window.setTimeout(() => {
+                fetchSuggestions(String(input.value || '').trim());
+            }, 180);
+        };
+
+        input.addEventListener('input', schedule);
+        input.addEventListener('focus', () => {
+            if (panel.hidden) schedule();
+        });
+
+        input.addEventListener('keydown', (event) => {
+            if (panel.hidden || !items.length) return;
+
+            if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                activeIndex = (activeIndex + 1) % items.length;
+                highlight();
+            } else if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                activeIndex = activeIndex <= 0 ? items.length - 1 : activeIndex - 1;
+                highlight();
+            } else if (event.key === 'Enter' && activeIndex >= 0) {
+                event.preventDefault();
+                const link = panel.querySelector(`[data-suggest-index="${activeIndex}"]`);
+                if (link?.href) window.location.href = link.href;
+            } else if (event.key === 'Escape') {
+                setExpanded(false);
+            }
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!form.contains(event.target)) setExpanded(false);
+        });
+    }
+
+    document.querySelectorAll('[data-search-form][data-suggest-url]').forEach(initSearchSuggest);
+
     document.querySelector('[data-open-search]')?.addEventListener('click', () => {
         if (!searchDialog || typeof searchDialog.showModal !== 'function') return;
         searchDialog.showModal();
-        window.setTimeout(() => searchDialog.querySelector('[data-search-input]')?.focus(), 30);
+        window.setTimeout(() => {
+            const input = searchDialog.querySelector('[data-search-input]');
+            input?.focus();
+            input?.dispatchEvent(new Event('focus'));
+        }, 30);
     });
 
     document.addEventListener('keydown', (event) => {

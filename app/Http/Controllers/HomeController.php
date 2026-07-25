@@ -11,15 +11,11 @@ class HomeController extends Controller
 {
     public function __invoke(): View
     {
-        $featured = Product::active()
+        $bestSellers = Product::active()
             ->with('activeVariants')
-            ->where('is_featured', true)
-            ->take(10)
+            ->latest()
+            ->take(8)
             ->get();
-
-        $bestSellers = $featured->isNotEmpty()
-            ? $featured
-            : Product::active()->with('activeVariants')->take(10)->get();
 
         return view('index', [
             'bestSellers' => $bestSellers,

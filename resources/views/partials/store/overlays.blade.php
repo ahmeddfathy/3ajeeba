@@ -172,7 +172,13 @@
 
 {{-- Search dialog --}}
 <dialog class="store-search" data-search-dialog aria-label="البحث في المتجر">
-    <form class="store-search__form" data-search-form action="{{ route('products.index') }}" method="get">
+    <form
+        class="store-search__form"
+        data-search-form
+        action="{{ route('products.index') }}"
+        method="get"
+        data-suggest-url="{{ route('products.suggest') }}"
+    >
         <div class="store-search__bar">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.6"/>
@@ -181,9 +187,13 @@
             <input
                 type="search"
                 name="q"
-                placeholder="ابحثي عن منتج..."
+                placeholder="عباية، قسم، مجموعة..."
                 data-search-input
                 autocomplete="off"
+                role="combobox"
+                aria-expanded="false"
+                aria-controls="store-search-suggest"
+                aria-autocomplete="list"
             >
             <button type="submit" class="store-btn store-btn--primary">بحث</button>
             <button type="button" class="store-icon-btn" data-close-search aria-label="إغلاق البحث">
@@ -192,7 +202,14 @@
                 </svg>
             </button>
         </div>
-        <p class="store-search__hint">اكتبِ اسم المنتج ثم اضغطي بحث.</p>
+        <div
+            id="store-search-suggest"
+            class="store-search__suggest"
+            data-search-suggest
+            role="listbox"
+            hidden
+        ></div>
+        <p class="store-search__hint" data-search-hint>ابدئي بالكتابة — هنقترح منتجات وأقسام ومجموعات.</p>
     </form>
 </dialog>
 

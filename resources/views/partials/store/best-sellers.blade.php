@@ -5,7 +5,7 @@
 <section class="store-section" id="best-sellers" aria-labelledby="best-sellers-title">
     <div class="store-section__head">
         <div class="store-section__title-wrap">
-            <h2 id="best-sellers-title" class="store-section__title">الأكثر مبيعًا</h2>
+            <h2 id="best-sellers-title" class="store-section__title">منتجاتنا</h2>
             <span class="store-section__rule" aria-hidden="true"></span>
         </div>
         <a href="{{ route('products.index') }}" class="store-section__link">
@@ -21,8 +21,8 @@
             <p>لا توجد منتجات معروضة حاليًا. أضيفي منتجات نشطة من لوحة الإدارة.</p>
         </div>
     @else
-        <div class="store-products" role="list">
-            @foreach ($bestSellers->take(10) as $product)
+        <div class="store-products store-products--home" role="list">
+            @foreach ($bestSellers->take(8) as $product)
                 <div role="listitem">
                     <x-product-card :product="$product" :currency="$currency" />
                 </div>

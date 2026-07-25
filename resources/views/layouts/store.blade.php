@@ -11,7 +11,16 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@500;600;700&family=Tajawal:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @php
+        $assetT = \App\Support\AssetVersion::t('build/manifest.json');
+        $viteHot = public_path('hot');
+    @endphp
+    @if (file_exists($viteHot))
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @else
+        <link rel="stylesheet" href="{{ Vite::asset('resources/css/app.css') }}?t={{ $assetT }}">
+        <script type="module" src="{{ Vite::asset('resources/js/app.js') }}?t={{ $assetT }}"></script>
+    @endif
 
     <script type="application/ld+json">
     {!! json_encode([
