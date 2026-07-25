@@ -11,12 +11,13 @@ class BrandImagesSeeder extends Seeder
 {
     public function run(): void
     {
+        // Use tracked store assets — products/ uploads folder is gitignored.
         $products = [
-            'عباية كريب مطرزة' => 'assets/images/products/abaya-1.jpg',
-            'عباية كتان فاخرة' => 'assets/images/products/abaya-2.jpg',
-            'عباية حرير مغسول' => 'assets/images/products/abaya-3.jpg',
-            'عباية بتطريز فاخر' => 'assets/images/products/abaya-4.jpg',
-            'عباية دبل فيس' => 'assets/images/products/abaya-1.jpg',
+            'عباية كريب مطرزة' => 'assets/images/store/p1.jpg',
+            'عباية كتان فاخرة' => 'assets/images/store/p2.jpg',
+            'عباية حرير مغسول' => 'assets/images/store/p3.jpg',
+            'عباية بتطريز فاخر' => 'assets/images/store/p4.jpg',
+            'عباية دبل فيس' => 'assets/images/store/p1.jpg',
             'حجاب شيفون ناعم' => 'assets/images/categories/hijabs.jpg',
             'خمار فرنسي أنيق' => 'assets/images/categories/khimar.jpg',
             'وشاح إكسسوار مطرز' => 'assets/images/categories/accessories.jpg',

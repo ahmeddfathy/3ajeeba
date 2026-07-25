@@ -16,7 +16,10 @@
 /public/build
 /public/hot
 /public/storage
-/public/assets/images/products/
+# Ignore product uploads, but keep seed placeholders trackable.
+/public/assets/images/products/*
+!/public/assets/images/products/.gitignore
+!/public/assets/images/products/abaya-*.jpg
 /public/assets/images/products.zip
 /storage/*.key
 /storage/pail

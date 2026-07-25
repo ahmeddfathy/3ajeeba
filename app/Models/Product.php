@@ -68,15 +68,58 @@ class Product extends Model
 
     public function getImageUrlAttribute(): ?string
     {
-        if (! $this->image) {
+        $path = $this->resolvePublicImagePath($this->image);
+
+        if (! $path) {
             return null;
         }
 
-        if (str_starts_with($this->image, 'http')) {
-            return $this->image;
+        if (str_starts_with($path, 'http')) {
+            return $path;
         }
 
-        return asset($this->image);
+        return asset($path);
+    }
+
+    /**
+     * Resolve a public image path, with fallbacks for seed images
+     * that live under gitignored upload folders on some deploys.
+     */
+    public function resolvePublicImagePath(?string $path): ?string
+    {
+        if (! filled($path)) {
+            return null;
+        }
+
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return $path;
+        }
+
+        $normalized = ltrim(str_replace('\\', '/', $path), '/');
+
+        if (is_file(public_path($normalized))) {
+            return $normalized;
+        }
+
+        $fallbacks = [
+            'assets/images/products/abaya-1.jpg' => 'assets/images/store/p1.jpg',
+            'assets/images/products/abaya-2.jpg' => 'assets/images/store/p2.jpg',
+            'assets/images/products/abaya-3.jpg' => 'assets/images/store/p3.jpg',
+            'assets/images/products/abaya-4.jpg' => 'assets/images/store/p4.jpg',
+        ];
+
+        if (isset($fallbacks[$normalized]) && is_file(public_path($fallbacks[$normalized]))) {
+            return $fallbacks[$normalized];
+        }
+
+        if (preg_match('/abaya-([1-4])\.jpe?g$/i', $normalized, $matches)) {
+            $alt = 'assets/images/store/p' . $matches[1] . '.jpg';
+            if (is_file(public_path($alt))) {
+                return $alt;
+            }
+        }
+
+        return null;
     }
 
     public function getHasVariantsAttribute(): bool
