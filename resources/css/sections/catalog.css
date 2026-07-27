@@ -84,7 +84,7 @@
     border: 1px solid rgba(118, 80, 60, 0.1);
     border-radius: 20px;
     background: rgba(255, 253, 251, 0.94);
-    box-shadow: 0 14px 35px rgba(63, 51, 44, 0.14);
+    box-shadow: none;
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
 }
