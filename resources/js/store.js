@@ -34,6 +34,7 @@ function createStore() {
     const cartItemsEl = document.querySelector('[data-cart-items]');
     const cartFooterEl = document.querySelector('[data-cart-footer]');
     const cartTotalEl = document.querySelector('[data-cart-total]');
+    const clearCartBtn = document.querySelector('[data-clear-cart]');
     const wishlistItemsEl = document.querySelector('[data-wishlist-items]');
     const whatsappCheckout = document.querySelector('[data-whatsapp-checkout]');
     const onlineCheckoutForm = document.querySelector('[data-online-checkout]');
@@ -371,8 +372,18 @@ function createStore() {
         if (!keepOverlay) document.body.style.overflow = '';
     }
 
+    clearCartBtn?.addEventListener('click', () => {
+        if (!cart.length) return;
+        if (confirm('هل أنتِ متأكدة من تفريغ سلة التسوق بالكامل؟')) {
+            cart = [];
+            persist();
+        }
+    });
+
     function renderCart() {
         if (!cartItemsEl) return;
+
+        if (clearCartBtn) clearCartBtn.hidden = cart.length === 0;
 
         if (!cart.length) {
             cartItemsEl.innerHTML = '<p class="store-empty-drawer">سلتك فارغة حاليًا.</p>';
@@ -388,25 +399,25 @@ function createStore() {
             <div class="store-line" data-cart-line="${key}">
                 <div class="store-line__media">
                     ${item.image
-                        ? `<img src="${item.image}" alt="${item.name}" width="64" height="64" loading="lazy">`
+                        ? `<img src="${item.image}" alt="${item.name}" width="68" height="78" loading="lazy">`
                         : '<div class="store-placeholder" aria-hidden="true"></div>'}
                 </div>
-                <div>
-                    <h3>${item.name}</h3>
-                    ${item.variantLabel ? `<p>${item.variantLabel}</p>` : ''}
-                    <p>${formatMoney(item.price)}</p>
+                <div class="store-line__info">
+                    <h3 class="store-line__title">${item.name}</h3>
+                    ${item.variantLabel ? `<p class="store-line__variant">${item.variantLabel}</p>` : ''}
+                    <div class="store-line__price">${formatMoney(item.price)}</div>
                 </div>
                 <div class="store-line__actions">
+                    <button type="button" class="store-line__remove" data-remove-cart="${key}" aria-label="إزالة من السلة" title="إزالة">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                    </button>
                     <div class="store-qty">
                         <button type="button" data-qty-decrease="${key}" aria-label="تقليل الكمية">−</button>
                         <span>${item.quantity}</span>
                         <button type="button" data-qty-increase="${key}" aria-label="زيادة الكمية">+</button>
                     </div>
-                    <button type="button" class="store-icon-btn" data-remove-cart="${key}" aria-label="إزالة من السلة">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M6 7h12M9 7V5h6v2M8 7l1 12h6l1-12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </button>
                 </div>
             </div>
         `;
