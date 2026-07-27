@@ -37,17 +37,18 @@
     max-width: 1400px;
     margin: 0 auto;
     align-items: center;
-    overflow: hidden;
-    border: 1px solid rgba(118, 80, 60, 0.1);
+    overflow: visible;
+    border: 0;
     border-radius: 22px;
-    background: #f5ede6;
-    box-shadow: 0 18px 48px rgba(63, 51, 44, 0.1);
+    background: transparent;
+    box-shadow: none;
 }
 
 @media (min-width: 900px) {
     .store-catalog__banner-inner {
         grid-template-columns: minmax(330px, 0.82fr) minmax(0, 1.18fr);
         height: clamp(330px, 31vw, 410px);
+        overflow: hidden;
         border: 0;
         border-radius: 28px;
         background: linear-gradient(135deg, #3f2c24 0%, #654735 55%, #805941 100%);
@@ -79,11 +80,12 @@
     justify-content: center;
     align-items: flex-start;
     gap: 0.6rem;
-    margin: -2.75rem 0.85rem 0.85rem;
-    padding: 1.35rem 1.25rem 1.5rem;
+    min-height: 235px;
+    margin: -5.5rem 0.8rem 0;
+    padding: 1.5rem 1.3rem 1.65rem;
     border: 1px solid rgba(118, 80, 60, 0.1);
-    border-radius: 20px;
-    background: rgba(255, 253, 251, 0.94);
+    border-radius: 24px;
+    background: #fffdfb;
     box-shadow: none;
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
@@ -93,6 +95,7 @@
     .store-catalog__banner-copy {
         height: 100%;
         max-width: 36rem;
+        min-height: 0;
         margin: 0;
         padding: clamp(2.25rem, 4vw, 4rem);
         border: 0;
@@ -167,6 +170,7 @@
     overflow: hidden;
     width: 100%;
     aspect-ratio: 16 / 11;
+    border-radius: 22px;
     background: var(--surface-soft);
 }
 
