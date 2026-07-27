@@ -1,0 +1,198 @@
+/* Overlays & Drawers Base */
+.store-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: rgba(40, 28, 22, 0.42);
+}
+
+.store-overlay[hidden] {
+    display: none !important;
+}
+
+.store-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: auto;
+    bottom: 0;
+    z-index: 60;
+    width: min(86vw, 320px);
+    max-width: 100%;
+    background: var(--surface);
+    box-shadow: -12px 0 40px rgba(40, 28, 22, 0.16);
+    display: flex;
+    flex-direction: column;
+    transform: translateX(105%);
+    transition: transform 220ms ease;
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+.store-drawer[hidden] {
+    display: none !important;
+}
+
+.store-drawer.is-open {
+    display: flex !important;
+    transform: translateX(0);
+}
+
+.store-drawer__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.05rem 1.15rem;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.store-drawer__head h2 {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+.store-drawer__body {
+    flex: 1;
+    overflow: auto;
+    padding: 1rem 1.1rem;
+}
+
+.store-drawer__foot {
+    padding: 1rem 1.1rem 1.25rem;
+    border-top: 1px solid var(--border);
+}
+
+.store-drawer__total {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.65rem;
+    font-weight: 700;
+}
+
+.store-drawer__note {
+    margin: 0 0 0.85rem;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.store-drawer__divider {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0.9rem 0;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.store-drawer__divider::before,
+.store-drawer__divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+}
+
+.store-drawer__nav {
+    flex: 1;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.store-drawer__nav > ul {
+    margin: 0;
+    padding: 0.65rem 0.85rem 1.75rem;
+    list-style: none;
+}
+
+.store-drawer__item + .store-drawer__item {
+    border-top: 1px solid color-mix(in srgb, var(--border) 65%, transparent);
+}
+
+.store-drawer__nav a,
+.store-drawer__toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.95rem 0.55rem;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--text);
+    text-decoration: none;
+    font: inherit;
+    font-weight: 700;
+    font-size: 1rem;
+    text-align: start;
+    cursor: pointer;
+    transition: background var(--transition), color var(--transition);
+}
+
+.store-drawer__nav a:hover,
+.store-drawer__nav a:active,
+.store-drawer__toggle:hover,
+.store-drawer__toggle:active {
+    background: color-mix(in srgb, var(--accent) 8%, var(--white));
+    color: var(--accent-dark);
+}
+
+.store-drawer__caret {
+    flex-shrink: 0;
+    color: var(--text-muted);
+    transition: transform 180ms ease;
+}
+
+.store-drawer__toggle[aria-expanded="true"] .store-drawer__caret {
+    transform: rotate(180deg);
+    color: var(--accent-dark);
+}
+
+.store-drawer__submenu {
+    margin: 0;
+    padding: 0 0.35rem 0.55rem;
+    list-style: none;
+}
+
+.store-drawer__submenu[hidden] {
+    display: none !important;
+}
+
+.store-drawer__submenu a {
+    padding: 0.65rem 0.75rem;
+    font-weight: 500;
+    font-size: 0.92rem;
+    color: var(--text-muted);
+}
+
+.store-body:has(.store-drawer.is-open) .store-bottom-dock,
+.store-body:has(.store-drawer.is-open) .store-scroll-top {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.store-categories-sheet {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.store-categories-sheet a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.95rem 0.15rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.store-categories-sheet a:hover {
+    color: var(--accent-dark);
+}

@@ -1,0 +1,131 @@
+/* Quick Pick Variant Modal */
+.store-quick-pick {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+}
+
+.store-quick-pick:not([hidden]) {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+@media (min-width: 640px) {
+    .store-quick-pick:not([hidden]) {
+        align-items: center;
+    }
+}
+
+.store-quick-pick[hidden] {
+    display: none !important;
+}
+
+.store-quick-pick__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(4px);
+}
+
+.store-quick-pick__dialog {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 440px;
+    background: #ffffff;
+    border-radius: 20px 20px 0 0;
+    padding: 1.25rem;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.15);
+}
+
+@media (min-width: 640px) {
+    .store-quick-pick__dialog {
+        border-radius: 20px;
+    }
+}
+
+.store-quick-pick__close {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: #f5f5f5;
+    border: 0;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #666;
+}
+
+.store-quick-pick__head {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.store-quick-pick__img {
+    width: 60px;
+    height: 75px;
+    object-fit: cover;
+    border-radius: 10px;
+    background: #f7f3ef;
+}
+
+.store-quick-pick__title {
+    margin: 0 0 0.25rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.store-quick-pick__price {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--accent-dark);
+}
+
+.store-quick-pick__body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem 0;
+}
+
+.store-quick-pick__label {
+    display: block;
+    font-size: 0.88rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+}
+
+.store-quick-pick__options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.store-quick-pick__btn {
+    padding: 0.4rem 0.9rem;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: #faf7f4;
+    color: var(--text);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.store-quick-pick__btn:hover,
+.store-quick-pick__btn.is-selected {
+    background: var(--accent-dark);
+    color: #ffffff;
+    border-color: var(--accent-dark);
+}
