@@ -82,7 +82,7 @@
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 0.5rem 1.25rem;
+    padding: 0.75rem 1.25rem 1.5rem;
     background: #FFFFFF;
     -webkit-overflow-scrolling: touch;
 }
@@ -160,6 +160,49 @@
     background: var(--border);
 }
 
+/* Categories Sheet Drawer */
+.store-categories-sheet {
+    margin: 0;
+    padding: 0.5rem 0 1.5rem;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.store-categories-sheet li a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.95rem 1.1rem;
+    border-radius: 12px;
+    background: #FAF9F7;
+    border: 1px solid rgba(44, 36, 30, 0.06);
+    color: #2C241E;
+    text-decoration: none;
+    font-family: 'Cairo', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.store-categories-sheet li a:hover {
+    background: #76503C;
+    color: #FFFFFF;
+    border-color: #76503C;
+    transform: translateX(-4px);
+}
+
+.store-categories-sheet li a svg {
+    color: #8A7E75;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.store-categories-sheet li a:hover svg {
+    color: #FFFFFF;
+    transform: translateX(-3px);
+}
+
 /* Nav Drawer Submenu */
 .store-drawer__nav {
     flex: 1;
@@ -204,6 +247,31 @@
 .store-drawer__toggle:active {
     background: color-mix(in srgb, var(--accent) 8%, var(--white));
     color: var(--accent-dark);
+}
+
+.store-drawer__submenu {
+    margin: 0.25rem 0 0.5rem;
+    padding: 0 0 0 1rem;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.store-drawer__submenu li a {
+    display: block;
+    padding: 0.65rem 0.85rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #665D56;
+    text-decoration: none;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.store-drawer__submenu li a:hover {
+    background: #FAF9F7;
+    color: #76503C;
 }
 
 .store-drawer__caret {

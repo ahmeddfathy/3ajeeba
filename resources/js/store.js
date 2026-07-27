@@ -154,8 +154,10 @@ function createStore() {
         const colors = [...new Set(currentQpVariants.map((v) => v.color).filter(Boolean))];
         const sizes = [...new Set(currentQpVariants.map((v) => v.size).filter(Boolean))];
 
-        currentQpSelectedColor = '';
-        currentQpSelectedSize = '';
+        // Auto-select first available variant combination
+        const firstVar = currentQpVariants[0];
+        currentQpSelectedColor = firstVar ? (firstVar.color || '') : '';
+        currentQpSelectedSize = firstVar ? (firstVar.size || '') : '';
 
         if (colors.length && qpColorGroup && qpColors) {
             qpColorGroup.hidden = false;
@@ -188,6 +190,34 @@ function createStore() {
 
     function updateQpSelection() {
         if (!currentQpVariants.length) return;
+
+        // 1. Calculate available sizes for the currently selected color
+        let validSizesForColor = currentQpVariants;
+        if (currentQpSelectedColor) {
+            const filtered = currentQpVariants.filter((v) => !v.color || v.color === currentQpSelectedColor);
+            if (filtered.length) validSizesForColor = filtered;
+        }
+        const availableSizes = new Set(validSizesForColor.map((v) => v.size).filter(Boolean));
+
+        // If current size is invalid for this color, switch to first available size
+        if (currentQpSelectedSize && availableSizes.size > 0 && !availableSizes.has(currentQpSelectedSize)) {
+            currentQpSelectedSize = [...availableSizes][0] || '';
+        }
+
+        // 2. Calculate available colors for the currently selected size
+        let validColorsForSize = currentQpVariants;
+        if (currentQpSelectedSize) {
+            const filtered = currentQpVariants.filter((v) => !v.size || v.size === currentQpSelectedSize);
+            if (filtered.length) validColorsForSize = filtered;
+        }
+        const availableColors = new Set(validColorsForSize.map((v) => v.color).filter(Boolean));
+
+        // If current color is invalid for this size, switch to first available color
+        if (currentQpSelectedColor && availableColors.size > 0 && !availableColors.has(currentQpSelectedColor)) {
+            currentQpSelectedColor = [...availableColors][0] || '';
+        }
+
+        // 3. Find exact matching variant
         const match = currentQpVariants.find((v) => {
             const matchColor = !v.color || v.color === currentQpSelectedColor;
             const matchSize = !v.size || v.size === currentQpSelectedSize;
@@ -198,12 +228,24 @@ function createStore() {
             qpPrice.textContent = formatMoney(match.price);
         }
 
+        // 4. Update Color buttons state (highlight selected & disable unavailable)
         qpColors?.querySelectorAll('[data-qp-opt-color]').forEach((btn) => {
-            btn.classList.toggle('is-selected', btn.dataset.qpOptColor === currentQpSelectedColor);
+            const val = btn.dataset.qpOptColor;
+            const isSel = val === currentQpSelectedColor;
+            const isAvail = availableColors.size === 0 || availableColors.has(val);
+            btn.classList.toggle('is-selected', isSel);
+            btn.classList.toggle('is-disabled', !isAvail);
+            btn.disabled = !isAvail;
         });
 
+        // 5. Update Size buttons state (highlight selected & disable unavailable)
         qpSizes?.querySelectorAll('[data-qp-opt-size]').forEach((btn) => {
-            btn.classList.toggle('is-selected', btn.dataset.qpOptSize === currentQpSelectedSize);
+            const val = btn.dataset.qpOptSize;
+            const isSel = val === currentQpSelectedSize;
+            const isAvail = availableSizes.size === 0 || availableSizes.has(val);
+            btn.classList.toggle('is-selected', isSel);
+            btn.classList.toggle('is-disabled', !isAvail);
+            btn.disabled = !isAvail;
         });
     }
 
