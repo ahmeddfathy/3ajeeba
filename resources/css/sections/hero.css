@@ -200,27 +200,17 @@
     border-color: rgba(118, 80, 60, 0.18);
 }
 
-/* A calmer primary action that does not overpower the home artwork. */
+/* Keep the prominent home action, without the heavy floating shadow. */
 .store-page-hero--home .store-page-hero__cta {
-    min-height: 48px;
-    padding: 0.72rem 1.55rem !important;
-    border-radius: 10px !important;
-    background: #76503c !important;
-    font-size: 0.95rem !important;
-    font-weight: 700 !important;
-    box-shadow: 0 4px 12px rgba(78, 50, 37, 0.18) !important;
-    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease !important;
+    box-shadow: none !important;
 }
 
 .store-page-hero--home .store-page-hero__cta:hover {
-    background: #684430 !important;
-    box-shadow: 0 6px 16px rgba(78, 50, 37, 0.24) !important;
-    transform: translateY(-1px) !important;
+    box-shadow: none !important;
 }
 
 .store-page-hero--home .store-page-hero__cta:active {
-    background: #5c3b2a !important;
-    box-shadow: 0 2px 7px rgba(78, 50, 37, 0.2) !important;
+    box-shadow: none !important;
     transform: translateY(0) !important;
 }
 
@@ -283,12 +273,11 @@
     }
 
     .store-page-hero--home .store-page-hero__actions {
-        justify-content: center;
         margin-bottom: 1.4rem;
     }
 
     .store-page-hero--home .store-page-hero__cta {
-        width: min(100%, 14rem);
+        width: 100%;
         justify-content: center;
     }
 
