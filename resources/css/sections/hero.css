@@ -159,3 +159,155 @@
     flex-shrink: 0;
     border: 1px solid rgba(255, 255, 255, 0.25);
 }
+
+/* Home hero follows the former contact-hero composition. */
+.store-page-hero--home {
+    background: #fff;
+}
+
+.store-page-hero--home .store-page-hero__eyebrow {
+    color: #76503c;
+    background: rgba(163, 111, 80, 0.1);
+    border-color: rgba(118, 80, 60, 0.18);
+}
+
+.store-page-hero--home .store-page-hero__title {
+    color: #3f332c;
+    text-shadow: none;
+}
+
+.store-page-hero--home .store-page-hero__text {
+    color: #4a3b32;
+    font-weight: 500;
+    text-shadow: none;
+}
+
+.store-page-hero--home .store-page-hero__perks {
+    border-top-color: rgba(118, 80, 60, 0.2);
+}
+
+.store-page-hero--home .store-page-hero__perks li {
+    color: #6b5a50;
+}
+
+.store-page-hero--home .store-page-hero__perks strong {
+    color: #3f332c;
+}
+
+.store-page-hero--home .store-page-hero__perk-icon {
+    color: #76503c;
+    background: rgba(163, 111, 80, 0.1);
+    border-color: rgba(118, 80, 60, 0.18);
+}
+
+/* Mobile: keep the artwork clear, then place the content underneath it. */
+@media (max-width: 767px) {
+    .store-page-hero--home {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    .store-page-hero--home .store-page-hero__media {
+        position: relative;
+        inset: auto;
+        display: block;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16 / 11;
+        object-fit: cover;
+        object-position: 70% center;
+    }
+
+    .store-page-hero--home .store-page-hero__shade {
+        display: none;
+    }
+
+    .store-page-hero--home .store-page-hero__content {
+        position: relative;
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 1.35rem 1.2rem 1.65rem;
+        background: #fff;
+    }
+
+    .store-page-hero--home .store-page-hero__eyebrow {
+        margin: 0 0 0.55rem;
+        font-size: 0.82rem;
+    }
+
+    .store-page-hero--home .store-page-hero__title {
+        margin-bottom: 0.7rem;
+        font-size: clamp(1.7rem, 7.5vw, 2.15rem);
+        line-height: 1.25;
+    }
+
+    .store-page-hero--home .store-page-hero__text {
+        max-width: none;
+        margin-bottom: 1.15rem;
+        font-size: 0.95rem;
+        line-height: 1.7;
+    }
+
+    .store-page-hero--home .store-page-hero__actions {
+        margin-bottom: 1.4rem;
+    }
+
+    .store-page-hero--home .store-page-hero__cta {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .store-page-hero--home .store-page-hero__perks {
+        gap: 1rem;
+        padding-top: 1.15rem;
+    }
+}
+
+/* Desktop: copy sits on the clear side, matching the old contact hero. */
+@media (min-width: 768px) {
+    .store-page-hero--home {
+        min-height: clamp(340px, 42vw, 460px);
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    .store-page-hero--home .store-page-hero__media {
+        object-position: 78% 20%;
+    }
+
+    .store-page-hero--home .store-page-hero__shade {
+        background: linear-gradient(
+            90deg,
+            rgba(248, 241, 234, 0.96) 0%,
+            rgba(248, 241, 234, 0.82) 34%,
+            rgba(248, 241, 234, 0.2) 58%,
+            transparent 78%
+        );
+    }
+
+    .store-page-hero--home .store-page-hero__content {
+        width: min(42vw, 30rem);
+        max-width: 30rem;
+        margin: 0;
+        margin-inline-end: clamp(1.25rem, 5vw, 4rem);
+        padding: 2.5rem 0;
+        flex: 0 0 auto;
+        align-self: center;
+    }
+}
+
+@media (min-width: 1200px) {
+    .store-page-hero--home .store-page-hero__media {
+        object-position: 85% 20%;
+    }
+
+    .store-page-hero--home .store-page-hero__content {
+        width: min(36vw, 30rem);
+        margin-inline-end: clamp(2rem, 8vw, 7rem);
+    }
+}

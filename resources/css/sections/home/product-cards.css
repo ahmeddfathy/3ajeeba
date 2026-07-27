@@ -234,6 +234,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    min-width: 0;
     gap: 0.45rem;
     min-height: 44px;
     padding: 0.55rem 0.85rem;
@@ -291,4 +292,35 @@
     fill: #ffffff;
     width: 20px;
     height: 20px;
+}
+
+/* Keep both product actions aligned in narrow two-column mobile grids. */
+@media (min-width: 380px) and (max-width: 479px) {
+    .store-product-card__actions {
+        grid-template-columns: minmax(0, 1fr) 40px;
+        gap: 0.4rem;
+    }
+
+    .store-product-card__add {
+        width: 100%;
+        height: 44px;
+        min-height: 44px;
+        padding: 0.5rem 0.35rem;
+        gap: 0.3rem;
+        font-size: 0.75rem;
+        line-height: 1;
+        white-space: nowrap;
+    }
+
+    .store-product-card__add svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .store-product-card__wa {
+        width: 40px;
+        min-width: 40px;
+        height: 44px;
+        min-height: 44px;
+    }
 }
